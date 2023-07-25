@@ -2,7 +2,6 @@ package ru.academits.kurlukov.range_main;
 
 import ru.academits.kurlukov.range.Range;
 
-
 public class Main {
     public static void main(String[] args) {
         Range range1 = new Range(0, 12);
@@ -27,27 +26,53 @@ public class Main {
             System.out.println("Число " + number + " не принадлежит диапазону");
         }
 
-        Range range2 = new Range(4, 9);
-        Range range3 = new Range(7, 8);
+        Range range2 = new Range(4, 6);
+        Range range3 = new Range(7, 10);
 
         Range intersection = range2.getIntersection(range3);
+        System.out.print("Пересение двух интервалов: ");
 
         if (intersection == null) {
             System.out.println("Пересечения нет");
         } else {
-            System.out.println("Пересечение двух интервалов: от " + intersection.getFrom() + " до " + intersection.getTo());
+            System.out.print("[");
+            intersection.printRange();
+            System.out.print("]");
+            System.out.println();
         }
 
         Range[] union = range2.getUnion(range3);
+        System.out.print("Объединение двух интервалов: ");
+        System.out.print("[");
 
-        for (Range range : union) {
-            System.out.println("Объединение двух интервалов: от " + range.getFrom() + " до " + range.getTo());
+        for (int i = 0; i < union.length; i++) {
+            union[i].printRange();
+
+            if (i != union.length - 1) {
+                System.out.print(", ");
+            }
         }
 
-        Range[] difference = range2.getDifference(range3);
+        System.out.print("]");
+        System.out.println();
 
-        for (Range range : difference) {
-            System.out.println("Разность двух интервалов: от " + range.getFrom() + " до " + range.getTo());
+        Range[] difference = range2.getDifference(range3);
+        System.out.print("Разность двух интервалов: ");
+
+        if (difference.length == 0) {
+            System.out.println("[]");
+        } else {
+            System.out.print("[");
+
+            for (int i = 0; i < difference.length; i++) {
+                difference[i].printRange();
+
+                if (i != difference.length - 1) {
+                    System.out.print(", ");
+                }
+            }
+
+            System.out.print("]");
         }
     }
 }

@@ -9,16 +9,8 @@ public class Range {
         this.to = to;
     }
 
-    public double getFrom() {
-        return from;
-    }
-
     public void setFrom(double from) {
         this.from = from;
-    }
-
-    public double getTo() {
-        return to;
     }
 
     public void setTo(double to) {
@@ -45,20 +37,16 @@ public class Range {
     }
 
     public Range[] getUnion(Range range) {
+        if (range.to < from || range.from > to) {
+            return new Range[]{
+                    new Range(from, to),
+                    new Range(range.from, range.to)
+            };
+        }
+
         double minFrom = Math.min(from, range.from);
         double maxTo = Math.max(to, range.to);
-
-        if (minFrom == from && maxTo == to) {
-            return new Range[]{new Range(from, to)};
-        }
-
-        if (minFrom == range.from && maxTo == range.to) {
-            return new Range[]{new Range(range.from, range.to)};
-        }
-
-        return new Range[]{
-                new Range(minFrom, maxTo),
-                new Range(from, to)};
+        return new Range[]{new Range(minFrom, maxTo)};
     }
 
     public Range[] getDifference(Range range) {
@@ -84,7 +72,8 @@ public class Range {
         return new Range[]{new Range(range.to, to)};
     }
 
-    public void printRange() {
-        System.out.print("(" + from + "; " + to + ")");
+    @Override
+    public String toString() {
+        return "(" + from + ", " + to + ")";
     }
 }

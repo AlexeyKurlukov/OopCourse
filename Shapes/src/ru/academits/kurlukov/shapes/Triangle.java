@@ -1,8 +1,8 @@
 package ru.academits.kurlukov.shapes;
 
-import java.util.Objects;
-
 public class Triangle implements Shape {
+    private static final double EPSILON = 1.0e-10;
+
     private final double x1;
     private final double y1;
     private final double x2;
@@ -13,7 +13,6 @@ public class Triangle implements Shape {
     private final double side1Length;
     private final double side2Length;
     private final double side3Length;
-    private static final double epsilon = 1.0e-10;
 
     public Triangle(double x1, double y1, double x2, double y2, double x3, double y3) {
         this.x1 = x1;
@@ -23,9 +22,49 @@ public class Triangle implements Shape {
         this.x3 = x3;
         this.y3 = y3;
 
-        this.side1Length = Math.sqrt(Math.pow(x1 - x2, 2) + Math.pow(y1 - y2, 2));
-        this.side2Length = Math.sqrt(Math.pow(x1 - x3, 2) + Math.pow(y1 - y3, 2));
-        this.side3Length = Math.sqrt(Math.pow(x2 - x3, 2) + Math.pow(y2 - y3, 2));
+        side1Length = getSideLength(x1, y1, x2, y2);
+        side2Length = getSideLength(x1, y1, x3, y3);
+        side3Length = getSideLength(x2, y2, x3, y3);
+    }
+
+    public double getX1() {
+        return x1;
+    }
+
+    public double getY1() {
+        return y1;
+    }
+
+    public double getX2() {
+        return x2;
+    }
+
+    public double getY2() {
+        return y2;
+    }
+
+    public double getX3() {
+        return x3;
+    }
+
+    public double getY3() {
+        return y3;
+    }
+
+    public double getSide1Length() {
+        return side1Length;
+    }
+
+    public double getSide2Length() {
+        return side2Length;
+    }
+
+    public double getSide3Length() {
+        return side3Length;
+    }
+
+    private double getSideLength(double x1, double y1, double x2, double y2) {
+        return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
     @Override
@@ -39,7 +78,7 @@ public class Triangle implements Shape {
     }
 
     private boolean arePointsCollinear() {
-        return Math.abs((x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)) <= epsilon;
+        return Math.abs((x2 - x1) * (y3 - y1) - (y2 - y1) * (x3 - x1)) <= EPSILON;
     }
 
     @Override
@@ -64,12 +103,20 @@ public class Triangle implements Shape {
 
     @Override
     public String toString() {
-        return "Triangle [x1=" + x1 + ", y1=" + y1 + ", x2=" + x2 + ", y2=" + y2 + ", x3=" + x3 + ", y3=" + y3 + "]";
+        return "Triangle [(x1; y1) = (" + x1 + "; " + y1 + "), " + "(x2; y2) = (" + x2 + "; " + y2 + "), " + "(x3; y3) = (" + x3 + "; " + y3 + ")]";
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(x1, y1, x2, y2, x3, y3);
+        final int prime = 37;
+        int hash = 1;
+        hash = prime * hash + Double.hashCode(x1);
+        hash = prime * hash + Double.hashCode(y1);
+        hash = prime * hash + Double.hashCode(x2);
+        hash = prime * hash + Double.hashCode(y2);
+        hash = prime * hash + Double.hashCode(x3);
+        hash = prime * hash + Double.hashCode(y3);
+        return hash;
     }
 
     @Override
@@ -83,7 +130,6 @@ public class Triangle implements Shape {
         }
 
         Triangle triangle = (Triangle) object;
-        return Double.compare(x1, triangle.x1) == 0 && Double.compare(y1, triangle.y1) == 0 && Double.compare(x2, triangle.x2) == 0
-                && Double.compare(y2, triangle.y2) == 0 && Double.compare(x3, triangle.x3) == 0 && Double.compare(y3, triangle.y3) == 0;
+        return x1 == triangle.x1 && y1 == triangle.y1 && x2 == triangle.x2 && y2 == triangle.y2 && x3 == triangle.x3 && y3 == triangle.y3;
     }
 }

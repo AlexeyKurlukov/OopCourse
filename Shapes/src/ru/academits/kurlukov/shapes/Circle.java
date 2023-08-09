@@ -7,6 +7,10 @@ public class Circle implements Shape {
         this.radius = radius;
     }
 
+    public double getRadius() {
+        return radius;
+    }
+
     @Override
     public double getWidth() {
         return 2 * radius;
@@ -29,7 +33,7 @@ public class Circle implements Shape {
 
     @Override
     public String toString() {
-        return "Circle [radius=" + radius + "]";
+        return "Circle [radius = " + radius + "]";
     }
 
     @Override
@@ -48,6 +52,6 @@ public class Circle implements Shape {
         }
 
         Circle circle = (Circle) object;
-        return Double.compare(radius, circle.radius) == 0;
+        return radius == circle.radius;
     }
 }

@@ -1,40 +1,44 @@
 package ru.academits.kurlukov.shapes;
 
 public class Square implements Shape {
-    private final double side;
+    private final double sideLength;
 
-    public Square(double side) {
-        this.side = side;
+    public Square(double sideLength) {
+        this.sideLength = sideLength;
+    }
+
+    public double getSideLength() {
+        return sideLength;
     }
 
     @Override
     public double getWidth() {
-        return side;
+        return sideLength;
     }
 
     @Override
     public double getHeight() {
-        return side;
+        return sideLength;
     }
 
     @Override
     public double getArea() {
-        return side * side;
+        return sideLength * sideLength;
     }
 
     @Override
     public double getPerimeter() {
-        return 4 * side;
+        return 4 * sideLength;
     }
 
     @Override
     public String toString() {
-        return "Square [side=" + side + "]";
+        return "Square [sideLength = " + sideLength + "]";
     }
 
     @Override
     public int hashCode() {
-        return Double.hashCode(side);
+        return Double.hashCode(sideLength);
     }
 
     @Override
@@ -48,6 +52,6 @@ public class Square implements Shape {
         }
 
         Square square = (Square) object;
-        return Double.compare(side, square.side) == 0;
+        return sideLength == square.sideLength;
     }
 }

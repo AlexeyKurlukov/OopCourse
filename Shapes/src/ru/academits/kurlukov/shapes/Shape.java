@@ -8,10 +8,4 @@ public interface Shape {
     double getArea();
 
     double getPerimeter();
-
-    String toString();
-
-    int hashCode();
-
-    boolean equals(Object object);
 }

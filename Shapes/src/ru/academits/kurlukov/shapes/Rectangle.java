@@ -1,11 +1,11 @@
 package ru.academits.kurlukov.shapes;
 
 public class Rectangle implements Shape {
-    private final double length;
+    private final double height;
     private final double width;
 
-    public Rectangle(double length, double width) {
-        this.length = length;
+    public Rectangle(double height, double width) {
+        this.height = height;
         this.width = width;
     }
 
@@ -16,27 +16,31 @@ public class Rectangle implements Shape {
 
     @Override
     public double getHeight() {
-        return length;
+        return height;
     }
 
     @Override
     public double getArea() {
-        return length * width;
+        return height * width;
     }
 
     @Override
     public double getPerimeter() {
-        return 2 * (length + width);
+        return 2 * (height + width);
     }
 
     @Override
     public String toString() {
-        return "Rectangle [length=" + length + ", width=" + width + "]";
+        return "Rectangle [height = " + height + ", width = " + width + "]";
     }
 
     @Override
     public int hashCode() {
-        return Double.hashCode(length) + Double.hashCode(width);
+        final int prime = 37;
+        int hash = 1;
+        hash = prime * hash + Double.hashCode(height);
+        hash = prime * hash + Double.hashCode(width);
+        return hash;
     }
 
     @Override
@@ -50,6 +54,6 @@ public class Rectangle implements Shape {
         }
 
         Rectangle rectangle = (Rectangle) object;
-        return Double.compare(length, rectangle.length) == 0 && Double.compare(width, rectangle.width) == 0;
+        return height == rectangle.height && width == rectangle.width;
     }
 }

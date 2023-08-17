@@ -63,7 +63,7 @@ public class Triangle implements Shape {
         return side3Length;
     }
 
-    private double getSideLength(double x1, double y1, double x2, double y2) {
+    private static double getSideLength(double x1, double y1, double x2, double y2) {
         return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
     }
 
@@ -87,7 +87,7 @@ public class Triangle implements Shape {
             return 0;
         }
 
-        double semiPerimeter = (side1Length + side2Length + side3Length) / 2.0;
+        double semiPerimeter = (side1Length + side2Length + side3Length) / 2;
         return Math.sqrt(semiPerimeter * (semiPerimeter - side1Length) *
                 (semiPerimeter - side2Length) * (semiPerimeter - side3Length));
     }
@@ -103,7 +103,7 @@ public class Triangle implements Shape {
 
     @Override
     public String toString() {
-        return "Triangle [(x1; y1) = (" + x1 + "; " + y1 + "), " + "(x2; y2) = (" + x2 + "; " + y2 + "), " + "(x3; y3) = (" + x3 + "; " + y3 + ")]";
+        return "Triangle (" + x1 + "; " + y1 + "), (" + x2 + "; " + y2 + "), (" + x3 + "; " + y3 + ")";
     }
 
     @Override

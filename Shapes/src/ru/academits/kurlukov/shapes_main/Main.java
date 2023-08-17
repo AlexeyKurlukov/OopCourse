@@ -1,7 +1,7 @@
 package ru.academits.kurlukov.shapes_main;
 
-import ru.academits.kurlukov.comparators.AreaComparator;
-import ru.academits.kurlukov.comparators.PerimeterComparator;
+import ru.academits.kurlukov.shapes_comparators.ShapeAreaComparator;
+import ru.academits.kurlukov.shapes_comparators.ShapePerimeterComparator;
 import ru.academits.kurlukov.shapes.*;
 
 import java.util.Arrays;
@@ -12,7 +12,7 @@ public class Main {
             return null;
         }
 
-        Arrays.sort(shapes, new AreaComparator().reversed());
+        Arrays.sort(shapes, new ShapeAreaComparator().reversed());
         return shapes[0];
     }
 
@@ -21,7 +21,7 @@ public class Main {
             return null;
         }
 
-        Arrays.sort(shapes, new PerimeterComparator().reversed());
+        Arrays.sort(shapes, new ShapePerimeterComparator().reversed());
         return shapes[1];
     }
 
@@ -44,7 +44,7 @@ public class Main {
         if (maxAreaShape == null) {
             System.out.println("Массив фигур пустой");
         } else {
-            System.out.println("Фигура с максимальной площадью: " + maxAreaShape.getClass().getSimpleName() + ", площадь = " + maxAreaShape.getArea());
+            System.out.println("Фигура с максимальной площадью: " + maxAreaShape.toString() + ", площадь = " + maxAreaShape.getArea());
         }
 
         Shape secondMaxPerimeterShape = getSecondMaxPerimeterShape(shapes);
@@ -52,7 +52,7 @@ public class Main {
         if (secondMaxPerimeterShape == null) {
             System.out.println("В массиве недостаточно объектов, чтобы найти фигуру со вторым по величине периметром");
         } else {
-            System.out.println("Фигура со вторым по величине периметром: " + secondMaxPerimeterShape.getClass().getSimpleName()
+            System.out.println("Фигура со вторым по величине периметром: " + secondMaxPerimeterShape.toString()
                     + ", периметр = " + secondMaxPerimeterShape.getPerimeter());
         }
     }

@@ -40,7 +40,7 @@ public class Vector {
     public double getComponent(int index) {
         if (index < 0 || index >= components.length) {
             throw new IndexOutOfBoundsException("Индекс компоненты вектора вне допустимого диапазона. Передано index = " + index +
-                    ". Индекс должен быть в диапазоне (0;" + components.length + ")");
+                    ". Индекс должен быть в диапазоне [0; " + components.length + ")");
         }
 
         return components[index];
@@ -49,7 +49,7 @@ public class Vector {
     public void setComponent(int index, double value) {
         if (index < 0 || index >= components.length) {
             throw new IndexOutOfBoundsException("Индекс компоненты вектора вне допустимого диапазона. Передано index = " + index +
-                    ". Индекс должен быть в диапазоне (0;" + components.length + ")");
+                    ". Индекс должен быть в диапазоне [0; " + components.length + ")");
         }
 
         components[index] = value;
@@ -69,15 +69,10 @@ public class Vector {
     public String toString() {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('{');
-        int length = components.length;
+        stringBuilder.append(components[0]);
 
-        if (length > 0) {
-            stringBuilder.append(components[0]);
-
-            for (int i = 1; i < length; i++) {
-                stringBuilder.append(", ");
-                stringBuilder.append(components[i]);
-            }
+        for (int i = 1; i < components.length; i++) {
+            stringBuilder.append(", ").append(components[i]);
         }
 
         stringBuilder.append('}');
@@ -105,28 +100,26 @@ public class Vector {
 
     public void add(Vector vector) {
         int size = Math.max(components.length, vector.components.length);
-        double[] resultComponents = new double[size];
 
-        for (int i = 0; i < size; i++) {
-            double vector1Value = (i < components.length) ? components[i] : 0;
-            double vector2Value = (i < vector.components.length) ? vector.components[i] : 0;
-            resultComponents[i] = vector1Value + vector2Value;
+        if (components.length < size) {
+            components = Arrays.copyOf(components, size);
         }
 
-        components = resultComponents;
+        for (int i = 0; i < vector.components.length; i++) {
+            components[i] += vector.components[i];
+        }
     }
 
     public void subtract(Vector vector) {
         int size = Math.max(components.length, vector.components.length);
-        double[] resultComponents = new double[size];
 
-        for (int i = 0; i < size; i++) {
-            double vector1Value = (i < components.length) ? components[i] : 0;
-            double vector2Value = (i < vector.components.length) ? vector.components[i] : 0;
-            resultComponents[i] = vector1Value - vector2Value;
+        if (components.length < size) {
+            components = Arrays.copyOf(components, size);
         }
 
-        components = resultComponents;
+        for (int i = 0; i < vector.components.length; i++) {
+            components[i] -= vector.components[i];
+        }
     }
 
     public void multiply(double scalar) {

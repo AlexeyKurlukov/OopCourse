@@ -37,10 +37,14 @@ public class Vector {
         return components.length;
     }
 
+    public double[] getComponents() {
+        return Arrays.copyOf(components, components.length);
+    }
+
     public double getComponent(int index) {
         if (index < 0 || index >= components.length) {
             throw new IndexOutOfBoundsException("Индекс компоненты вектора вне допустимого диапазона. Передано index = " + index +
-                    ". Индекс должен быть в диапазоне [0; " + components.length + ")");
+                    ". Индекс должен быть в диапазоне [0; " + (components.length - 1) + "]");
         }
 
         return components[index];
@@ -49,7 +53,7 @@ public class Vector {
     public void setComponent(int index, double value) {
         if (index < 0 || index >= components.length) {
             throw new IndexOutOfBoundsException("Индекс компоненты вектора вне допустимого диапазона. Передано index = " + index +
-                    ". Индекс должен быть в диапазоне [0; " + components.length + ")");
+                    ". Индекс должен быть в диапазоне [0; " + (components.length - 1) + "]");
         }
 
         components[index] = value;
@@ -99,10 +103,10 @@ public class Vector {
     }
 
     public void add(Vector vector) {
-        int size = Math.max(components.length, vector.components.length);
+        int resultVectorSize = Math.max(components.length, vector.components.length);
 
-        if (components.length < size) {
-            components = Arrays.copyOf(components, size);
+        if (components.length < resultVectorSize) {
+            components = Arrays.copyOf(components, resultVectorSize);
         }
 
         for (int i = 0; i < vector.components.length; i++) {
@@ -111,10 +115,10 @@ public class Vector {
     }
 
     public void subtract(Vector vector) {
-        int size = Math.max(components.length, vector.components.length);
+        int resultVectorSize = Math.max(components.length, vector.components.length);
 
-        if (components.length < size) {
-            components = Arrays.copyOf(components, size);
+        if (components.length < resultVectorSize) {
+            components = Arrays.copyOf(components, resultVectorSize);
         }
 
         for (int i = 0; i < vector.components.length; i++) {

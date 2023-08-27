@@ -39,10 +39,10 @@ public class Main {
         System.out.println("Длина вектора vector5: " + vector5.getLength());
 
         System.out.println("Изменение компоненты с заданным индексом в векторе vector1 на заданное значение:");
-        vector1.setComponent(0, 55);
+        vector1.setComponent(1, 55);
         System.out.println("vector1: " + vector1);
 
-        System.out.println("Получение компоненты с заданным индексом в векторе vector1: " + vector1.getComponent(2));
+        System.out.println("Получение компоненты с заданным индексом в векторе vector1: " + vector1.getComponent(3));
 
         double[] vector6Components = {1, 2};
         Vector vector6 = new Vector(vector6Components);

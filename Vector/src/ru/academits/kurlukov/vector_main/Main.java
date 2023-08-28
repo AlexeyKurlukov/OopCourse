@@ -8,7 +8,7 @@ public class Main {
         Vector vector1 = new Vector(vector1Components);
         System.out.println("vector1: " + vector1);
 
-        double[] vector2Components = {4, 5};
+        double[] vector2Components = {4, 5, 7};
         Vector vector2 = new Vector(vector2Components);
         System.out.println("vector2: " + vector2);
 
@@ -19,7 +19,7 @@ public class Main {
         Vector vector3 = new Vector(vector3Components);
         System.out.println("vector3: " + vector3);
 
-        double[] vector4Components = {4, 5, 6, 4, 5, 6};
+        double[] vector4Components = {4, 5};
         Vector vector4 = new Vector(vector4Components);
         System.out.println("vector4: " + vector4);
 
@@ -42,7 +42,7 @@ public class Main {
         vector1.setComponent(1, 55);
         System.out.println("vector1: " + vector1);
 
-        System.out.println("Получение компоненты с заданным индексом в векторе vector1: " + vector1.getComponent(3));
+        System.out.println("Получение компоненты с заданным индексом в векторе vector1: " + vector1.getComponent(1));
 
         double[] vector6Components = {1, 2};
         Vector vector6 = new Vector(vector6Components);

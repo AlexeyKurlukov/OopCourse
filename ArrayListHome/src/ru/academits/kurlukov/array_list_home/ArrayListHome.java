@@ -5,7 +5,6 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.io.FileNotFoundException;
 
@@ -25,13 +24,13 @@ public class ArrayListHome {
     }
 
     public static void removeEvenNumbers(List<Integer> numbers) {
-        Iterator<Integer> iterator = numbers.iterator();
+        int i = 0;
 
-        while (iterator.hasNext()) {
-            Integer number = iterator.next();
-
-            if (number % 2 == 0) {
-                iterator.remove();
+        while (i < numbers.size()) {
+            if (numbers.get(i) % 2 == 0) {
+                numbers.remove(i);
+            } else {
+                i++;
             }
         }
     }

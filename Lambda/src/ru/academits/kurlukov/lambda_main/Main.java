@@ -2,10 +2,7 @@ package ru.academits.kurlukov.lambda_main;
 
 import ru.academits.kurlukov.lambda_person.Person;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Main {
@@ -22,35 +19,38 @@ public class Main {
         );
 
         List<String> uniqueNames = persons.stream()
-                .map(Person::getName)
+                .map(Person::name)
                 .distinct()
                 .sorted()
                 .toList();
 
         System.out.println(uniqueNames);
 
-        String allNamesString = uniqueNames.stream()
+        String uniqueNamesString = uniqueNames.stream()
                 .collect(Collectors.joining(", ", "Имена: ", "."));
 
-        System.out.println(allNamesString);
+        System.out.println(uniqueNamesString);
 
-        double personsUnder18AverageAge = persons.stream()
-                .filter(person -> person.getAge() < 18)
-                .mapToInt(Person::getAge)
-                .average()
-                .orElse(0);
+        OptionalDouble personsUnder18AverageAge = persons.stream()
+                .filter(p -> p.age() < 18)
+                .mapToInt(Person::age)
+                .average();
 
-        System.out.println("Средний возраст людей младше 18: " + personsUnder18AverageAge);
+        if (personsUnder18AverageAge.isEmpty()) {
+            System.out.println("Нет людей младше 18 лет.");
+        } else {
+            System.out.println("Средний возраст людей младше 18: " + personsUnder18AverageAge.getAsDouble());
+        }
 
-        Map<String, Double> averageAgeByName = persons.stream()
-                .collect(Collectors.groupingBy(Person::getName, Collectors.averagingInt(Person::getAge)));
+        Map<String, Double> averageAgeByNames = persons.stream()
+                .collect(Collectors.groupingBy(Person::name, Collectors.averagingInt(Person::age)));
 
-        System.out.println("Средний возраст по именам: " + averageAgeByName);
+        System.out.println("Средний возраст по именам: " + averageAgeByNames);
 
         List<String> personsBetween20And45 = persons.stream()
-                .filter(person -> person.getAge() >= 20 && person.getAge() <= 45)
-                .sorted(Comparator.comparingInt(Person::getAge).reversed())
-                .map(Person::getName)
+                .filter(p -> p.age() >= 20 && p.age() <= 45)
+                .sorted(Comparator.comparingInt(Person::age).reversed())
+                .map(Person::name)
                 .toList();
 
         System.out.println("Люди, возраст которых от 20 до 45, в порядке убывания возраста: " + personsBetween20And45);

@@ -1,239 +1,207 @@
 package ru.academits.kurlukov.list;
 
-public class SinglyLinkedList {
-    private Node head;
-    private int length;
+import java.util.NoSuchElementException;
+
+public class SinglyLinkedList<E> {
+    private Node<E> head;
+    private int count;
 
     public SinglyLinkedList() {
-        head = null;
-        length = 0;
     }
 
-    public int getSize() {
-        return length;
+    public int getCount() {
+        return count;
     }
 
-    public int getFirstElementValue() {
-        if (head != null) {
-            return head.data;
-        }
-
-        return -1;
-    }
-
-    public int getElementValueAtIndex(int index) {
+    public E getFirst() {
         if (head == null) {
-            throw new IndexOutOfBoundsException("Список пуст");
+            throw new NoSuchElementException("Список пуст");
         }
 
-        Node current = head;
-        int count = 0;
-
-        while (current != null) {
-            if (count == index) {
-                return current.data;
-            }
-
-            current = current.next;
-            count++;
-        }
-
-        throw new IndexOutOfBoundsException("Невозможно получить значение элемента по указанному индексу. Переданный индекс "
-                + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + length + "]");
+        return head.getData();
     }
 
-    public int setElementValueAtIndex(int index, int value) {
-        if (head == null) {
-            throw new IndexOutOfBoundsException("Список пуст");
+    private Node<E> getNodeAtIndex(int index) {
+        Node<E> currentNode = head;
+
+        for (int i = 0; i < index; i++) {
+            currentNode = currentNode.getNext();
         }
 
-        Node current = head;
-        int count = 0;
-
-        while (current != null) {
-            if (count == index) {
-                int oldValue = current.data;
-                current.data = value;
-                return oldValue;
-            }
-
-            current = current.next;
-            count++;
-        }
-
-        throw new IndexOutOfBoundsException("Невозможно изменить значение элемента по указанному индексу. Переданный индекс "
-                + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + length + "]");
+        return currentNode;
     }
 
-    public int removeElementAtIndex(int index) {
-        if (index == 0) {
-            if (head == null) {
-                throw new IndexOutOfBoundsException("Список пуст");
-            }
-
-            int value = head.data;
-            head = head.next;
-            length--;
-            return value;
+    public E getAtIndex(int index) {
+        if (index < 0 || index >= count) {
+            throw new IndexOutOfBoundsException("Невозможно получить значение элемента по указанному индексу. Переданный индекс "
+                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
         }
 
-        Node current = head;
-        Node previous = null;
-        int count = 0;
-
-        while (current != null) {
-            if (count == index) {
-                previous.next = current.next;
-                int value = current.data;
-                length--;
-                return value;
-            }
-
-            previous = current;
-            current = current.next;
-            count++;
-        }
-
-        throw new IndexOutOfBoundsException("Невозможно удалить элемент по указанному индексу. Переданный индекс "
-                + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + length + "]");
+        Node<E> node = getNodeAtIndex(index);
+        return node.getData();
     }
 
-    public void insertElementAtStart(int value) {
-        Node resultingHeadNode = new Node(value);
-
-        if (head != null) {
-            resultingHeadNode.next = head;
+    public E setAtIndex(int index, E data) {
+        if (index < 0 || index >= count) {
+            throw new IndexOutOfBoundsException("Невозможно изменить значение элемента по указанному индексу. Переданный индекс "
+                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
         }
 
-        head = resultingHeadNode;
-        length++;
+        Node<E> node = getNodeAtIndex(index);
+        E oldValue = node.getData();
+        node.setData(data);
+        return oldValue;
     }
 
-    public void insertElementAtIndex(int index, int value) {
-        if (index < 0 || index > length) {
-            throw new IndexOutOfBoundsException("Невозможно вставить элемент по указанному индексу. Переданный индекс "
-                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + length + "]");
+    public E removeAtIndex(int index) {
+        if (index < 0 || index >= count) {
+            throw new IndexOutOfBoundsException("Невозможно удалить элемент по указанному индексу. Переданный индекс "
+                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
         }
 
-        Node resultingNode = new Node(value);
+        Node<E> currentNode = head;
+        Node<E> previousNode = null;
 
-        if (index == 0) {
-            resultingNode.next = head;
-            head = resultingNode;
+        for (int i = 0; i < index; i++) {
+            previousNode = currentNode;
+            currentNode = currentNode.getNext();
+        }
+
+        if (previousNode == null) {
+            head = currentNode.getNext();
         } else {
-            Node current = head;
-
-            for (int i = 0; i < index - 1; i++) {
-                current = current.next;
-            }
-
-            resultingNode.next = current.next;
-            current.next = resultingNode;
+            previousNode.setNext(currentNode.getNext());
         }
 
-        length++;
+        count--;
+        return currentNode.getData();
     }
 
-    public boolean removeNodeByValue(int value) {
-        if (head == null) {
-            throw new NullPointerException("Список пуст");
+    public void insertFirst(E data) {
+        head = new Node<>(data, head);
+        count++;
+    }
+
+    public void insertAtIndex(int index, E data) {
+        if (index < 0 || index > count) {
+            throw new IndexOutOfBoundsException("Невозможно вставить элемент по указанному индексу. Переданный индекс "
+                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
         }
 
-        if (head.data == value) {
-            head = head.next;
-            length--;
-            return true;
+        if (index == 0) {
+            insertFirst(data);
+        } else {
+            Node<E> newNode = new Node<>(data);
+            Node<E> currentNode = head;
+            Node<E> previousNode = null;
+
+            for (int i = 0; i < index; i++) {
+                previousNode = currentNode;
+                currentNode = currentNode.getNext();
+            }
+
+            previousNode.setNext(newNode);
+            newNode.setNext(currentNode);
+            count++;
         }
+    }
 
-        Node current = head;
-        Node previous = null;
+    public boolean removeByValue(E data) {
+        Node<E> currentNode = head;
+        Node<E> previousNode = null;
 
-        while (current != null) {
-            if (current.data == value) {
-                previous.next = current.next;
-                length--;
+        while (currentNode != null) {
+            if (currentNode.getData().equals(data)) {
+                if (previousNode == null) {
+                    head = currentNode.getNext();
+                } else {
+                    previousNode.setNext(currentNode.getNext());
+                }
+
+                count--;
                 return true;
             }
 
-            previous = current;
-            current = current.next;
+            previousNode = currentNode;
+            currentNode = currentNode.getNext();
         }
 
         return false;
     }
 
-    public void removeFirstElement() {
+    public E removeFirst() {
         if (head == null) {
-            throw new NullPointerException("Список пуст");
+            throw new NoSuchElementException("Список пуст");
         }
 
-        head = head.next;
-        length--;
+        Node<E> removedNode = head;
+        head = head.getNext();
+        count--;
+        return removedNode.getData();
     }
 
-    public void reverseList() {
-        if (head == null || head.next == null) {
+    public void reverse() {
+        if (head == null || head.getNext() == null) {
             return;
         }
 
-        Node previous = null;
-        Node current = head;
-        Node next;
+        Node<E> previousNode = null;
+        Node<E> currentNode = head;
+        Node<E> nextNode;
 
-        while (current != null) {
-            next = current.next;
-            current.next = previous;
-            previous = current;
-            current = next;
+        while (currentNode != null) {
+            nextNode = currentNode.getNext();
+            currentNode.setNext(previousNode);
+            previousNode = currentNode;
+            currentNode = nextNode;
         }
 
-        head = previous;
+        head = previousNode;
     }
 
-    public void insertElementAtEnd(int value) {
-        Node resultingNode = new Node(value);
+    public SinglyLinkedList<E> copy() {
+        SinglyLinkedList<E> newList = new SinglyLinkedList<>();
+        Node<E> currentNode = head;
+        Node<E> tail = null;
 
-        if (head == null) {
-            head = resultingNode;
-        } else {
-            Node current = head;
+        while (currentNode != null) {
+            Node<E> newNode = new Node<>(currentNode.getData());
 
-            while (current.next != null) {
-                current = current.next;
+            if (tail == null) {
+                newList.head = newNode;
+            } else {
+                tail.setNext(newNode);
             }
 
-            current.next = resultingNode;
+            tail = newNode;
+            currentNode = currentNode.getNext();
         }
 
-        length++;
-    }
-
-    public SinglyLinkedList copyList() {
-        SinglyLinkedList listCopy = new SinglyLinkedList();
-        Node current = head;
-
-        while (current != null) {
-            listCopy.insertElementAtEnd(current.data);
-            current = current.next;
-        }
-
-        return listCopy;
+        newList.count = count;
+        return newList;
     }
 
     @Override
     public String toString() {
         if (head == null) {
-            return "Список пуст";
+            return "[]";
         }
 
         StringBuilder stringBuilder = new StringBuilder();
-        Node current = head;
+        stringBuilder.append('[');
+        Node<E> currentNode = head;
 
-        while (current != null) {
-            stringBuilder.append(current.data).append(" ");
-            current = current.next;
+        while (currentNode != null) {
+            if (currentNode.getNext() == null) {
+                stringBuilder.append(currentNode.getData());
+            } else {
+                stringBuilder.append(currentNode.getData()).append(", ");
+            }
+
+            currentNode = currentNode.getNext();
         }
 
+        stringBuilder.append(']');
         return stringBuilder.toString();
     }
 }

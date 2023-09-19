@@ -7,7 +7,7 @@ public class Vector {
 
     public Vector(int size) {
         if (size <= 0) {
-            throw new IllegalArgumentException("Размерность вектора должна быть больше нуля. Передано size = " + size);
+            throw new IllegalArgumentException("Размерность вектора должна быть больше нуля. Передан size = " + size);
         }
 
         components = new double[size];
@@ -27,7 +27,7 @@ public class Vector {
 
     public Vector(int size, double[] components) {
         if (size <= 0) {
-            throw new IllegalArgumentException("Размерность вектора должна быть больше нуля. Передано size = " + size);
+            throw new IllegalArgumentException("Размерность вектора должна быть больше нуля. Передан size = " + size);
         }
 
         this.components = Arrays.copyOf(components, size);
@@ -43,7 +43,7 @@ public class Vector {
 
     public double getComponent(int index) {
         if (index < 0 || index >= components.length) {
-            throw new IndexOutOfBoundsException("Индекс компоненты вектора вне допустимого диапазона. Передано index = " + index +
+            throw new IndexOutOfBoundsException("Индекс компоненты вектора вне допустимого диапазона. Передан index = " + index +
                     ". Индекс должен быть в диапазоне [0; " + (components.length - 1) + "]");
         }
 
@@ -52,7 +52,7 @@ public class Vector {
 
     public void setComponent(int index, double value) {
         if (index < 0 || index >= components.length) {
-            throw new IndexOutOfBoundsException("Индекс компоненты вектора вне допустимого диапазона. Передано index = " + index +
+            throw new IndexOutOfBoundsException("Индекс компоненты вектора вне допустимого диапазона. Передан index = " + index +
                     ". Индекс должен быть в диапазоне [0; " + (components.length - 1) + "]");
         }
 

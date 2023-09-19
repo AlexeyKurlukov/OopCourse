@@ -44,7 +44,7 @@ public class Main {
         if (maxAreaShape == null) {
             System.out.println("Массив фигур пустой");
         } else {
-            System.out.println("Фигура с максимальной площадью: " + maxAreaShape.toString() + ", площадь = " + maxAreaShape.getArea());
+            System.out.println("Фигура с максимальной площадью: " + maxAreaShape + ", площадь = " + maxAreaShape.getArea());
         }
 
         Shape secondMaxPerimeterShape = getSecondMaxPerimeterShape(shapes);
@@ -52,7 +52,7 @@ public class Main {
         if (secondMaxPerimeterShape == null) {
             System.out.println("В массиве недостаточно объектов, чтобы найти фигуру со вторым по величине периметром");
         } else {
-            System.out.println("Фигура со вторым по величине периметром: " + secondMaxPerimeterShape.toString()
+            System.out.println("Фигура со вторым по величине периметром: " + secondMaxPerimeterShape
                     + ", периметр = " + secondMaxPerimeterShape.getPerimeter());
         }
     }

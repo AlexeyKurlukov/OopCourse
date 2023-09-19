@@ -42,10 +42,10 @@ public class Main {
             System.out.println("Средний возраст людей младше 18: " + personsUnder18AverageAge.getAsDouble());
         }
 
-        Map<String, Double> averageAgeByNames = persons.stream()
+        Map<String, Double> averageAgesByNames = persons.stream()
                 .collect(Collectors.groupingBy(Person::name, Collectors.averagingInt(Person::age)));
 
-        System.out.println("Средний возраст по именам: " + averageAgeByNames);
+        System.out.println("Средний возраст по именам: " + averageAgesByNames);
 
         List<String> personsBetween20And45 = persons.stream()
                 .filter(p -> p.age() >= 20 && p.age() <= 45)

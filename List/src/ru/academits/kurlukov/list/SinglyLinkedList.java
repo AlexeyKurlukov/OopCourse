@@ -6,9 +6,6 @@ public class SinglyLinkedList<E> {
     private Node<E> head;
     private int count;
 
-    public SinglyLinkedList() {
-    }
-
     public int getCount() {
         return count;
     }
@@ -19,6 +16,13 @@ public class SinglyLinkedList<E> {
         }
 
         return head.getData();
+    }
+
+    private void validateIndex(int index) {
+        if (index < 0 || index >= count) {
+            throw new IndexOutOfBoundsException("Невозможно выполнить операцию. Предоставленный индекс " + index +
+                    " находится за пределами списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
+        }
     }
 
     private Node<E> getNodeAtIndex(int index) {
@@ -32,39 +36,67 @@ public class SinglyLinkedList<E> {
     }
 
     public E getAtIndex(int index) {
-        if (index < 0 || index >= count) {
-            throw new IndexOutOfBoundsException("Невозможно получить значение элемента по указанному индексу. Переданный индекс "
-                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
-        }
-
-        Node<E> node = getNodeAtIndex(index);
-        return node.getData();
+        validateIndex(index);
+        return getNodeAtIndex(index).getData();
     }
 
     public E setAtIndex(int index, E data) {
-        if (index < 0 || index >= count) {
-            throw new IndexOutOfBoundsException("Невозможно изменить значение элемента по указанному индексу. Переданный индекс "
-                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
-        }
-
+        validateIndex(index);
         Node<E> node = getNodeAtIndex(index);
-        E oldValue = node.getData();
+        E oldData = node.getData();
         node.setData(data);
-        return oldValue;
+        return oldData;
     }
 
     public E removeAtIndex(int index) {
-        if (index < 0 || index >= count) {
-            throw new IndexOutOfBoundsException("Невозможно удалить элемент по указанному индексу. Переданный индекс "
-                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
+        validateIndex(index);
+
+        if (index == 0) {
+            return removeFirst();
+        } else {
+            Node<E> previousNode = getNodeAtIndex(index - 1);
+            Node<E> currentNode = previousNode.getNext();
+            previousNode.setNext(currentNode.getNext());
+            count--;
+            return currentNode.getData();
+        }
+    }
+
+    public void insertFirst(E data) {
+        head = new Node<>(data, head);
+        count++;
+    }
+
+    public void insertAtIndex(int index, E data) {
+        validateIndex(index);
+
+        if (index == 0) {
+            insertFirst(data);
+            return;
         }
 
+        Node<E> previousNode = getNodeAtIndex(index - 1);
+        previousNode.setNext(new Node<>(data, previousNode.getNext()));
+        count++;
+    }
+
+    public boolean removeByData(E data) {
         Node<E> currentNode = head;
         Node<E> previousNode = null;
 
-        for (int i = 0; i < index; i++) {
+        while (currentNode != null) {
+            if (data == null && currentNode.getData() == null) {
+                break;
+            } else if (data != null && data.equals(currentNode.getData())) {
+                break;
+            }
+
             previousNode = currentNode;
             currentNode = currentNode.getNext();
+        }
+
+        if (currentNode == null) {
+            return false;
         }
 
         if (previousNode == null) {
@@ -74,59 +106,7 @@ public class SinglyLinkedList<E> {
         }
 
         count--;
-        return currentNode.getData();
-    }
-
-    public void insertFirst(E data) {
-        head = new Node<>(data, head);
-        count++;
-    }
-
-    public void insertAtIndex(int index, E data) {
-        if (index < 0 || index > count) {
-            throw new IndexOutOfBoundsException("Невозможно вставить элемент по указанному индексу. Переданный индекс "
-                    + index + " выходит за пределы списка. Индекс должен быть в диапазоне [0, " + (count - 1) + "]");
-        }
-
-        if (index == 0) {
-            insertFirst(data);
-        } else {
-            Node<E> newNode = new Node<>(data);
-            Node<E> currentNode = head;
-            Node<E> previousNode = null;
-
-            for (int i = 0; i < index; i++) {
-                previousNode = currentNode;
-                currentNode = currentNode.getNext();
-            }
-
-            previousNode.setNext(newNode);
-            newNode.setNext(currentNode);
-            count++;
-        }
-    }
-
-    public boolean removeByValue(E data) {
-        Node<E> currentNode = head;
-        Node<E> previousNode = null;
-
-        while (currentNode != null) {
-            if (currentNode.getData().equals(data)) {
-                if (previousNode == null) {
-                    head = currentNode.getNext();
-                } else {
-                    previousNode.setNext(currentNode.getNext());
-                }
-
-                count--;
-                return true;
-            }
-
-            previousNode = currentNode;
-            currentNode = currentNode.getNext();
-        }
-
-        return false;
+        return true;
     }
 
     public E removeFirst() {
@@ -134,23 +114,22 @@ public class SinglyLinkedList<E> {
             throw new NoSuchElementException("Список пуст");
         }
 
-        Node<E> removedNode = head;
+        E removedData = head.getData();
         head = head.getNext();
         count--;
-        return removedNode.getData();
+        return removedData;
     }
 
     public void reverse() {
-        if (head == null || head.getNext() == null) {
+        if (count <= 1) {
             return;
         }
 
         Node<E> previousNode = null;
         Node<E> currentNode = head;
-        Node<E> nextNode;
 
         while (currentNode != null) {
-            nextNode = currentNode.getNext();
+            Node<E> nextNode = currentNode.getNext();
             currentNode.setNext(previousNode);
             previousNode = currentNode;
             currentNode = nextNode;
@@ -164,15 +143,15 @@ public class SinglyLinkedList<E> {
         Node<E> currentNode = head;
         Node<E> tail = null;
 
+        if (currentNode != null) {
+            newList.head = new Node<>(currentNode.getData());
+            tail = newList.head;
+            currentNode = currentNode.getNext();
+        }
+
         while (currentNode != null) {
             Node<E> newNode = new Node<>(currentNode.getData());
-
-            if (tail == null) {
-                newList.head = newNode;
-            } else {
-                tail.setNext(newNode);
-            }
-
+            tail.setNext(newNode);
             tail = newNode;
             currentNode = currentNode.getNext();
         }
@@ -191,17 +170,12 @@ public class SinglyLinkedList<E> {
         stringBuilder.append('[');
         Node<E> currentNode = head;
 
-        while (currentNode != null) {
-            if (currentNode.getNext() == null) {
-                stringBuilder.append(currentNode.getData());
-            } else {
-                stringBuilder.append(currentNode.getData()).append(", ");
-            }
-
+        while (currentNode.getNext() != null) {
+            stringBuilder.append(currentNode.getData()).append(", ");
             currentNode = currentNode.getNext();
         }
 
-        stringBuilder.append(']');
+        stringBuilder.append(currentNode.getData()).append(']');
         return stringBuilder.toString();
     }
 }

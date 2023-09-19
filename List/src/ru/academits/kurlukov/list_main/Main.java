@@ -17,18 +17,25 @@ public class Main {
 
         System.out.println("Значение первого элемента списка: " + list.getFirst());
 
-        System.out.println("Значение элемента списка по заданному индексу: " + list.getAtIndex(5));
+        int index1 = 3;
+        System.out.println("Значение элемента списка по индексу " + index1 + ": " + list.getAtIndex(index1));
 
-        System.out.println("Старое значение элемента списка по заданному индексу: " + list.setAtIndex(5, 5));
+        int index2 = 3;
+        int data1 = 5;
+        System.out.println("Старое значение элемента списка по индексу " + index2 + ": " + list.setAtIndex(index2, data1));
         System.out.println(list);
 
-        System.out.println("Значение удаленного элемента по заданному индексу: " + list.removeAtIndex(2));
+        int index3 = 1;
+        System.out.println("Значение удаленного элемента по индексу " + index3 + ": " + list.removeAtIndex(index3));
         System.out.println(list);
 
-        list.insertAtIndex(5, 88);
-        System.out.println("Список после вставки элемента по заданному индексу " + list);
+        int index4 = 2;
+        int data2 = 88;
+        list.insertAtIndex(index4, data2);
+        System.out.println("Список после вставки элемента со значением " + data2 + " по индексу " + index4 + ": " + list);
 
-        System.out.println("Узел с указанным значением был найден в списке и удалён: " + list.removeByValue(88));
+        int data3 = 88;
+        System.out.println("Узел со значением " + data3 + " был найден в списке и удален: " + list.removeByData(data3));
         System.out.println(list);
 
         System.out.println("Значение первого, удалённого элемента списка " + list.removeFirst());

@@ -1,6 +1,7 @@
 package ru.academits.kurlukov.list;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 public class SinglyLinkedList<E> {
     private Node<E> head;
@@ -53,13 +54,14 @@ public class SinglyLinkedList<E> {
 
         if (index == 0) {
             return removeFirst();
-        } else {
-            Node<E> previousNode = getNodeAtIndex(index - 1);
-            Node<E> currentNode = previousNode.getNext();
-            previousNode.setNext(currentNode.getNext());
-            count--;
-            return currentNode.getData();
         }
+
+        Node<E> previousNode = getNodeAtIndex(index - 1);
+        Node<E> currentNode = previousNode.getNext();
+        previousNode.setNext(currentNode.getNext());
+        count--;
+        return currentNode.getData();
+
     }
 
     public void insertFirst(E data) {
@@ -68,15 +70,34 @@ public class SinglyLinkedList<E> {
     }
 
     public void insertAtIndex(int index, E data) {
-        validateIndex(index);
+        if (index < 0 || index > count) {
+            throw new IndexOutOfBoundsException("Невозможно выполнить операцию. Предоставленный индекс " + index +
+                    " находится за пределами списка. Индекс должен быть в диапазоне [0, " + count + "]");
+        }
 
         if (index == 0) {
             insertFirst(data);
             return;
         }
 
+        if (index == count) {
+            Node<E> newNode = new Node<>(data);
+
+            if (head == null) {
+                head = newNode;
+            } else {
+                Node<E> currentNode = getNodeAtIndex(count - 1);
+                currentNode.setNext(newNode);
+            }
+
+            count++;
+            return;
+        }
+
         Node<E> previousNode = getNodeAtIndex(index - 1);
-        previousNode.setNext(new Node<>(data, previousNode.getNext()));
+        Node<E> newNode = new Node<>(data);
+        newNode.setNext(previousNode.getNext());
+        previousNode.setNext(newNode);
         count++;
     }
 
@@ -85,28 +106,22 @@ public class SinglyLinkedList<E> {
         Node<E> previousNode = null;
 
         while (currentNode != null) {
-            if (data == null && currentNode.getData() == null) {
-                break;
-            } else if (data != null && data.equals(currentNode.getData())) {
-                break;
+            if (Objects.equals(data, currentNode.getData())) {
+                if (previousNode == null) {
+                    head = currentNode.getNext();
+                } else {
+                    previousNode.setNext(currentNode.getNext());
+                }
+
+                count--;
+                return true;
             }
 
             previousNode = currentNode;
             currentNode = currentNode.getNext();
         }
 
-        if (currentNode == null) {
-            return false;
-        }
-
-        if (previousNode == null) {
-            head = currentNode.getNext();
-        } else {
-            previousNode.setNext(currentNode.getNext());
-        }
-
-        count--;
-        return true;
+        return false;
     }
 
     public E removeFirst() {
@@ -141,18 +156,18 @@ public class SinglyLinkedList<E> {
     public SinglyLinkedList<E> copy() {
         SinglyLinkedList<E> newList = new SinglyLinkedList<>();
         Node<E> currentNode = head;
-        Node<E> tail = null;
+        Node<E> newListTail = null;
 
         if (currentNode != null) {
             newList.head = new Node<>(currentNode.getData());
-            tail = newList.head;
+            newListTail = newList.head;
             currentNode = currentNode.getNext();
         }
 
         while (currentNode != null) {
             Node<E> newNode = new Node<>(currentNode.getData());
-            tail.setNext(newNode);
-            tail = newNode;
+            newListTail.setNext(newNode);
+            newListTail = newNode;
             currentNode = currentNode.getNext();
         }
 
@@ -170,12 +185,13 @@ public class SinglyLinkedList<E> {
         stringBuilder.append('[');
         Node<E> currentNode = head;
 
-        while (currentNode.getNext() != null) {
+        while (currentNode != null) {
             stringBuilder.append(currentNode.getData()).append(", ");
             currentNode = currentNode.getNext();
         }
 
-        stringBuilder.append(currentNode.getData()).append(']');
+        stringBuilder.setLength((stringBuilder.length() - 2));
+        stringBuilder.append(']');
         return stringBuilder.toString();
     }
 }

@@ -29,7 +29,7 @@ public class Main {
         System.out.println("Значение удаленного элемента по индексу " + index3 + ": " + list.removeAtIndex(index3));
         System.out.println(list);
 
-        int index4 = 2;
+        int index4 = 5;
         int data2 = 88;
         list.insertAtIndex(index4, data2);
         System.out.println("Список после вставки элемента со значением " + data2 + " по индексу " + index4 + ": " + list);

@@ -80,20 +80,6 @@ public class SinglyLinkedList<E> {
             return;
         }
 
-        if (index == count) {
-            Node<E> newNode = new Node<>(data);
-
-            if (head == null) {
-                head = newNode;
-            } else {
-                Node<E> currentNode = getNodeAtIndex(count - 1);
-                currentNode.setNext(newNode);
-            }
-
-            count++;
-            return;
-        }
-
         Node<E> previousNode = getNodeAtIndex(index - 1);
         Node<E> newNode = new Node<>(data);
         newNode.setNext(previousNode.getNext());
@@ -108,7 +94,7 @@ public class SinglyLinkedList<E> {
         while (currentNode != null) {
             if (Objects.equals(data, currentNode.getData())) {
                 if (previousNode == null) {
-                    head = currentNode.getNext();
+                    head = head.getNext();
                 } else {
                     previousNode.setNext(currentNode.getNext());
                 }
@@ -154,15 +140,15 @@ public class SinglyLinkedList<E> {
     }
 
     public SinglyLinkedList<E> copy() {
+        if (head == null) {
+            return new SinglyLinkedList<>();
+        }
+
         SinglyLinkedList<E> newList = new SinglyLinkedList<>();
         Node<E> currentNode = head;
-        Node<E> newListTail = null;
-
-        if (currentNode != null) {
-            newList.head = new Node<>(currentNode.getData());
-            newListTail = newList.head;
-            currentNode = currentNode.getNext();
-        }
+        Node<E> newListTail = new Node<>(currentNode.getData());
+        newList.head = newListTail;
+        currentNode = currentNode.getNext();
 
         while (currentNode != null) {
             Node<E> newNode = new Node<>(currentNode.getData());
@@ -190,7 +176,7 @@ public class SinglyLinkedList<E> {
             currentNode = currentNode.getNext();
         }
 
-        stringBuilder.setLength((stringBuilder.length() - 2));
+        stringBuilder.setLength(stringBuilder.length() - 2);
         stringBuilder.append(']');
         return stringBuilder.toString();
     }

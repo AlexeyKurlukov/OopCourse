@@ -1,7 +1,6 @@
 package ru.academits.kurlukov.array_list_main;
 
 import ru.academits.kurlukov.array_list.ArrayList;
-import ru.academits.kurlukov.array_list.List;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -9,7 +8,7 @@ import java.util.Iterator;
 
 public class Main {
     public static void main(String[] args) {
-        List<String> arrayList = new ArrayList<>();
+        ArrayList<String> arrayList = new ArrayList<>();
         arrayList.add("element1");
         arrayList.add("element2");
         arrayList.add("element3");
@@ -22,15 +21,17 @@ public class Main {
 
         int index1 = 2;
         arrayList.add(index1, "element5");
-        System.out.println("После замены элемента по индексу " + index1 + ": " + arrayList);
+        System.out.println("После вставки элемента по индексу " + index1 + ": " + arrayList);
 
-        System.out.println("Индекс элемента 'element55' в списке: " + arrayList.indexOf("element55"));
+        String element1 = "element1";
+        System.out.println("Индекс элемента " + element1 + " в списке: " + arrayList.indexOf(element1));
 
-        System.out.println("Индекс последнего вхождения элемента 'element1' в списке: " + arrayList.lastIndexOf("element1"));
+        String element2 = "element2";
+        System.out.println("Индекс последнего вхождения элемента " + element2 + " в списке: " + arrayList.lastIndexOf(element2));
 
-        System.out.println("Элемент 'element55' удалён из списка: " + arrayList.remove("element55"));
+        System.out.println("Элемент " + element2 + " удалён из списка: " + arrayList.remove(element2));
 
-        System.out.println("Список содержит элемент 'element5': " + arrayList.contains("element5"));
+        System.out.println("Список содержит элемент " + element1 + ": " + arrayList.contains(element1));
 
         int index2 = 2;
         arrayList.remove(index2);
@@ -39,7 +40,7 @@ public class Main {
         int index3 = 2;
         System.out.println("Элемент по индексу " + index3 + ": " + arrayList.get(index3));
 
-        System.out.println("Размер списка: " + arrayList.getSize());
+        System.out.println("Размер списка: " + arrayList.size());
 
         int minCapacity = 10;
         arrayList.ensureCapacity(minCapacity);
@@ -51,6 +52,10 @@ public class Main {
         int index4 = 3;
         arrayList.set(index4, "newElement");
         System.out.println("После замены элемента по индексу " + index4 + ": " + arrayList);
+
+        String[] array = new String[arrayList.size()];
+        array = arrayList.toArray(array);
+        System.out.println("Элементы массива: " + Arrays.toString(array));
 
         arrayList.clear();
         System.out.println("Содержимое списка после очистки: " + arrayList);
@@ -98,5 +103,7 @@ public class Main {
         }
 
         System.out.println("Содержимое списка " + newArrayList);
+        iterator.remove();
+        iterator.remove();
     }
 }

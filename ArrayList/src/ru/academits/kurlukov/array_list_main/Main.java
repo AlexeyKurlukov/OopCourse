@@ -30,6 +30,7 @@ public class Main {
         System.out.println("Индекс последнего вхождения элемента " + element2 + " в списке: " + arrayList.lastIndexOf(element2));
 
         System.out.println("Элемент " + element2 + " удалён из списка: " + arrayList.remove(element2));
+        System.out.println("Элемент " + arrayList.remove(2) + " удалён из списка");
 
         System.out.println("Список содержит элемент " + element1 + ": " + arrayList.contains(element1));
 
@@ -49,8 +50,8 @@ public class Main {
         arrayList.trimToSize();
         System.out.println("Содержимое списка после уменьшения его вместимости до текущего размера: " + arrayList);
 
-        int index4 = 3;
-        arrayList.set(index4, "newElement");
+        int index4 = 1;
+        System.out.println("Старое значение элемента списка по индексу " + index4 + ": " + arrayList.set(index4, "newElement"));
         System.out.println("После замены элемента по индексу " + index4 + ": " + arrayList);
 
         String[] array = new String[arrayList.size()];

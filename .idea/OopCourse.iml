@@ -8,5 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module" module-name="ArrayList" />
+    <orderEntry type="module" module-name="HashTable" />
   </component>
 </module>

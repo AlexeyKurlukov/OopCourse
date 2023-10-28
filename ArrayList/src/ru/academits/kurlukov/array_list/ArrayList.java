@@ -13,12 +13,12 @@ public class ArrayList<E> implements List<E> {
         this(DEFAULT_CAPACITY);
     }
 
-    @SuppressWarnings("unchecked")
     public ArrayList(int capacity) {
         if (capacity < 0) {
             throw new IllegalArgumentException("Начальная вместимость не может быть отрицательной. Передана вместимость: " + capacity);
         }
 
+        //noinspection unchecked
         items = (E[]) new Object[capacity];
     }
 
@@ -97,12 +97,13 @@ public class ArrayList<E> implements List<E> {
     }
 
     @Override
-    @SuppressWarnings("unchecked")
     public <T> T[] toArray(T[] array) {
         if (array.length < size) {
+            // noinspection unchecked
             return (T[]) Arrays.copyOf(items, size, array.getClass());
         }
 
+        // noinspection  SuspiciousSystemArraycopy
         System.arraycopy(items, 0, array, 0, size);
 
         if (array.length > size) {
@@ -133,6 +134,7 @@ public class ArrayList<E> implements List<E> {
     @Override
     public E remove(int index) {
         checkIndex(index);
+
         E removedItem = items[index];
 
         if (index < size - 1) {
@@ -198,6 +200,7 @@ public class ArrayList<E> implements List<E> {
     @Override
     public boolean addAll(int index, Collection<? extends E> collection) {
         checkCollectionIsNull(collection);
+
         checkInsertIndex(index);
 
         if (collection.isEmpty()) {
@@ -206,6 +209,7 @@ public class ArrayList<E> implements List<E> {
 
         ensureCapacity(size + collection.size());
         System.arraycopy(items, index, items, index + collection.size(), size - index);
+
         int i = index;
 
         for (E item : collection) {
@@ -245,6 +249,7 @@ public class ArrayList<E> implements List<E> {
     @Override
     public boolean retainAll(Collection<?> collection) {
         checkCollectionIsNull(collection);
+
         boolean isModified = false;
 
         for (int i = size - 1; i >= 0; i--) {
@@ -275,20 +280,22 @@ public class ArrayList<E> implements List<E> {
     @Override
     public E get(int index) {
         checkIndex(index);
+
         return items[index];
     }
 
     @Override
     public E set(int index, E item) {
         checkIndex(index);
-        E oldValue = items[index];
+
+        E oldItem = items[index];
         items[index] = item;
-        return oldValue;
+        return oldItem;
     }
 
-    @SuppressWarnings("unchecked")
     private void increaseCapacity() {
         if (items.length == 0) {
+            //noinspection unchecked
             items = (E[]) new Object[DEFAULT_CAPACITY];
         } else {
             items = Arrays.copyOf(items, items.length * 2);
@@ -311,17 +318,9 @@ public class ArrayList<E> implements List<E> {
 
     @Override
     public int indexOf(Object object) {
-        if (object == null) {
-            for (int i = 0; i < size; i++) {
-                if (Objects.equals(items[i], null)) {
-                    return i;
-                }
-            }
-        } else {
-            for (int i = 0; i < size; i++) {
-                if (Objects.equals(object, items[i])) {
-                    return i;
-                }
+        for (int i = 0; i < size; i++) {
+            if (Objects.equals(object, items[i])) {
+                return i;
             }
         }
 
@@ -330,17 +329,9 @@ public class ArrayList<E> implements List<E> {
 
     @Override
     public int lastIndexOf(Object object) {
-        if (object == null) {
-            for (int i = size - 1; i >= 0; i--) {
-                if (Objects.equals(items[i], null)) {
-                    return i;
-                }
-            }
-        } else {
-            for (int i = size - 1; i >= 0; i--) {
-                if (Objects.equals(object, items[i])) {
-                    return i;
-                }
+        for (int i = size - 1; i >= 0; i--) {
+            if (Objects.equals(object, items[i])) {
+                return i;
             }
         }
 

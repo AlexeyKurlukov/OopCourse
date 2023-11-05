@@ -3,19 +3,39 @@ package ru.academits.kurlukov.hash_table;
 import java.util.*;
 
 public class HashTable<E> implements Collection<E> {
-    private static final Object DELETED = new Object();
-
-    private E[] table;
+    private final ArrayList<E>[] buckets;
     private int size;
     private int modificationsCount;
 
-    @SuppressWarnings("unchecked")
+    public HashTable() {
+        int capacity = 10;
+        // noinspection unchecked
+        buckets = new ArrayList[capacity];
+
+        for (int i = 0; i < capacity; i++) {
+            buckets[i] = new ArrayList<>();
+        }
+    }
+
     public HashTable(int capacity) {
-        if (capacity < 0) {
-            throw new IllegalArgumentException("Начальная вместимость не может быть отрицательной. Передана вместимость: " + capacity);
+        if (capacity <= 0) {
+            throw new IllegalArgumentException("Начальная вместимость не может быть меньше или равна 0. Передана вместимость: " + capacity);
         }
 
-        table = (E[]) new Object[capacity];
+        // noinspection unchecked
+        buckets = new ArrayList[capacity];
+
+        for (int i = 0; i < capacity; i++) {
+            buckets[i] = new ArrayList<>();
+        }
+    }
+
+    private int getIndex(Object object) {
+        if (object == null) {
+            return 0;
+        }
+
+        return Math.abs(object.hashCode()) % buckets.length;
     }
 
     @Override
@@ -31,89 +51,93 @@ public class HashTable<E> implements Collection<E> {
     @Override
     public boolean contains(Object object) {
         if (object == null) {
-            for (Object value : table) {
-                if (value == null) {
-                    return true;
-                }
-            }
-        } else {
-            int hash = object.hashCode();
-            int index = Math.abs(hash) % table.length;
-            return table[index] != null && table[index].equals(object);
+            ArrayList<E> bucket = buckets[0];
+            return bucket.contains(null);
         }
 
-        return false;
+        ArrayList<E> bucket = buckets[getIndex(object)];
+        return bucket.contains(object);
     }
 
     @Override
     public Iterator<E> iterator() {
-        return new HashTableIterator();
-    }
+        return new Iterator<>() {
+            private int bucketIndex = 0;
+            private int elementIndex = 0;
+            private int expectedModificationsCount = modificationsCount;
 
-    private class HashTableIterator implements Iterator<E> {
-        private int currentIndex;
-        private int elementsVisited;
-        private int expectedModificationsCount;
+            @Override
+            public boolean hasNext() {
+                while (bucketIndex < buckets.length && elementIndex >= buckets[bucketIndex].size()) {
+                    bucketIndex++;
+                    elementIndex = 0;
+                }
 
-        public HashTableIterator() {
-            expectedModificationsCount = modificationsCount;
-        }
-
-        private void checkModification() {
-            if (modificationsCount != expectedModificationsCount) {
-                throw new ConcurrentModificationException("Список был изменен");
-            }
-        }
-
-        @Override
-        public boolean hasNext() {
-            checkModification();
-            return elementsVisited < size;
-        }
-
-        @Override
-        public E next() {
-            checkModification();
-
-            while (table[currentIndex] == null || table[currentIndex] == DELETED) {
-                currentIndex++;
+                return bucketIndex < buckets.length;
             }
 
-            E element = table[currentIndex];
-            currentIndex++;
-            elementsVisited++;
-            return element;
-        }
-    }
+            private void checkModification() {
+                if (modificationsCount != expectedModificationsCount) {
+                    throw new ConcurrentModificationException("Список был изменен");
+                }
+            }
 
+            @Override
+            public E next() {
+                checkModification();
+
+                if (!hasNext()) {
+                    throw new NoSuchElementException("Нет больше элементов в списке");
+                }
+
+                int currentIndex = elementIndex;
+                elementIndex++;
+                return buckets[bucketIndex].get(currentIndex);
+            }
+
+            @Override
+            public void remove() {
+                checkModification();
+
+                if (elementIndex == 0) {
+                    throw new IllegalStateException("Метод remove() может быть вызван только один раз после каждого вызова next()");
+                }
+
+                buckets[bucketIndex].remove(elementIndex - 1);
+                elementIndex--;
+                size--;
+                expectedModificationsCount = modificationsCount;
+            }
+        };
+    }
 
     @Override
     public Object[] toArray() {
-        Object[] array = new Object[size];
-        int index = 0;
+        Object[] hashTableArray = new Object[size];
+        int i = 0;
 
-        for (Object element : table) {
-            if (element != null && element != DELETED) {
-                array[index] = element;
-                index++;
-            }
+        for (E element : this) {
+            hashTableArray[i] = element;
+            i++;
         }
 
-        return array;
+        return hashTableArray;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public <T> T[] toArray(T[] array) {
         if (array.length < size) {
-
-            return (T[]) Arrays.copyOf(table, size, array.getClass());
+            array = Arrays.copyOf(array, size);
+        } else if (array.length > size) {
+            Arrays.fill(array, size, array.length, null);
         }
 
-        System.arraycopy(table, 0, array, 0, size);
+        int i = 0;
 
-        if (array.length > size) {
-            array[size] = null;
+        for (E element : this) {
+            // noinspection unchecked
+            array[i] = (T) element;
+            i++;
         }
 
         return array;
@@ -121,10 +145,17 @@ public class HashTable<E> implements Collection<E> {
 
     @Override
     public boolean add(E element) {
-        int index = getIndex(element);
+        if (element == null) {
+            ArrayList<E> bucket = buckets[0];
+            bucket.add(null);
+            size++;
+            modificationsCount++;
+            return true;
+        }
 
-        if (table[index] == null) {
-            table[index] = element;
+        ArrayList<E> bucket = buckets[getIndex(element)];
+
+        if (bucket.add(element)) {
             size++;
             modificationsCount++;
             return true;
@@ -133,28 +164,20 @@ public class HashTable<E> implements Collection<E> {
         return false;
     }
 
-    private int getIndex(E element) {
-        return Math.abs(element.hashCode()) % table.length;
-    }
-
-    @SuppressWarnings("unchecked")
     @Override
     public boolean remove(Object object) {
         if (object == null) {
-            for (int i = 0; i < table.length; i++) {
-                if (table[i] == null) {
-                    table[i] = (E) DELETED;
-                    size--;
-                    modificationsCount++;
-                    return true;
-                }
+            ArrayList<E> bucket = buckets[0];
+
+            if (bucket.remove(null)) {
+                size--;
+                modificationsCount++;
+                return true;
             }
         } else {
-            int hash = object.hashCode();
-            int index = Math.abs(hash) % table.length;
+            ArrayList<E> bucket = buckets[getIndex(object)];
 
-            if (table[index] != null && table[index].equals(object)) {
-                table[index] = (E) DELETED;
+            if (bucket.remove(object)) {
                 size--;
                 modificationsCount++;
                 return true;
@@ -164,7 +187,7 @@ public class HashTable<E> implements Collection<E> {
         return false;
     }
 
-    private void checkCollectionIsNull(Collection<?> collection) {
+    private static void checkCollectionIsNull(Collection<?> collection) {
         if (collection == null) {
             throw new IllegalArgumentException("Коллекция не может быть null");
         }
@@ -174,39 +197,25 @@ public class HashTable<E> implements Collection<E> {
     public boolean containsAll(Collection<?> collection) {
         checkCollectionIsNull(collection);
 
-        for (Object element : collection) {
-            if (!contains(element)) {
+        for (Object o : collection) {
+            if (!contains(o)) {
                 return false;
             }
         }
-        return true;
-    }
 
-    private void ensureCapacity(int minCapacity) {
-        if (minCapacity > table.length) {
-            table = Arrays.copyOf(table, minCapacity);
-        }
+        return true;
     }
 
     @Override
     public boolean addAll(Collection<? extends E> collection) {
         checkCollectionIsNull(collection);
+
         boolean isModified = false;
-
-        if (collection.isEmpty()) {
-            return false;
-        }
-
-        ensureCapacity(size + collection.size());
 
         for (E element : collection) {
             if (add(element)) {
                 isModified = true;
             }
-        }
-
-        if (isModified) {
-            modificationsCount++;
         }
 
         return isModified;
@@ -215,49 +224,41 @@ public class HashTable<E> implements Collection<E> {
     @Override
     public boolean removeAll(Collection<?> collection) {
         checkCollectionIsNull(collection);
-        boolean isModified = false;
 
         if (collection.isEmpty()) {
             return false;
         }
 
-        for (Object element : collection) {
-            if (remove(element)) {
+        boolean isModified = false;
+
+        for (Object o : collection) {
+            if (remove(o)) {
                 isModified = true;
             }
-        }
-
-        if (isModified) {
-            modificationsCount++;
         }
 
         return isModified;
     }
 
-    @SuppressWarnings("unchecked")
     @Override
     public boolean retainAll(Collection<?> collection) {
         checkCollectionIsNull(collection);
-        Objects.requireNonNull(collection);
+
         boolean isModified = false;
-        Object[] newArray = new Object[table.length];
-        int newIndex = 0;
 
-        for (Object element : table) {
-            if (element != null && element != DELETED && collection.contains(element)) {
-                newArray[newIndex] = element;
-                newIndex++;
+        for (ArrayList<E> bucket : buckets) {
+            Iterator<E> iterator = bucket.iterator();
+
+            while (iterator.hasNext()) {
+                E element = iterator.next();
+
+                if (!collection.contains(element)) {
+                    iterator.remove();
+                    size--;
+                    modificationsCount++;
+                    isModified = true;
+                }
             }
-        }
-
-        if (newIndex < size) {
-            table = (E[]) newArray;
-            size = newIndex;
-            isModified = true;
-        }
-
-        if (isModified) {
-            modificationsCount++;
         }
 
         return isModified;
@@ -265,73 +266,24 @@ public class HashTable<E> implements Collection<E> {
 
     @Override
     public void clear() {
-        if (size == 0) {
-            return;
+        for (ArrayList<E> bucket : buckets) {
+            bucket.clear();
         }
 
-        Arrays.fill(table, null);
         size = 0;
         modificationsCount++;
     }
 
     @Override
-    public int hashCode() {
-        int prime = 37;
-        int hash = 1;
-
-        hash = prime * hash + Arrays.hashCode(table);
-        hash = prime * hash + size;
-        hash = prime * hash + modificationsCount;
-
-        return hash;
-    }
-
-    @Override
-    public boolean equals(Object object) {
-        if (this == object) {
-            return true;
-        }
-
-        if (object == null || getClass() != object.getClass()) {
-            return false;
-        }
-
-        HashTable<?> hashTable = (HashTable<?>) object;
-
-        if (size() != hashTable.size()) {
-            return false;
-        }
-
-        for (Object item : this) {
-            if (!hashTable.contains(item)) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
-    @Override
     public String toString() {
-        if (isEmpty()) {
-            return "[]";
-        }
-
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
-        boolean first = true;
 
-        for (Object value : table) {
-            if (value != null && value != DELETED) {
-                if (!first) {
-                    stringBuilder.append(", ");
-                }
-
-                stringBuilder.append(value);
-                first = false;
-            }
+        for (ArrayList<E> bucket : buckets) {
+            stringBuilder.append(bucket.toString()).append(", ");
         }
 
+        stringBuilder.setLength(stringBuilder.length() - 2);
         stringBuilder.append(']');
         return stringBuilder.toString();
     }

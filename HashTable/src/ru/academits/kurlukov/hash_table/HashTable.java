@@ -3,18 +3,15 @@ package ru.academits.kurlukov.hash_table;
 import java.util.*;
 
 public class HashTable<E> implements Collection<E> {
-    private final ArrayList<E>[] buckets;
+    private static final int DEFAULT_CAPACITY = 10;
+    private static final double LOAD_FACTOR = 0.9;
+
+    private ArrayList<E>[] lists;
     private int size;
     private int modificationsCount;
 
     public HashTable() {
-        int capacity = 10;
-        // noinspection unchecked
-        buckets = new ArrayList[capacity];
-
-        for (int i = 0; i < capacity; i++) {
-            buckets[i] = new ArrayList<>();
-        }
+        this(DEFAULT_CAPACITY);
     }
 
     public HashTable(int capacity) {
@@ -23,10 +20,10 @@ public class HashTable<E> implements Collection<E> {
         }
 
         // noinspection unchecked
-        buckets = new ArrayList[capacity];
+        lists = new ArrayList[capacity];
 
         for (int i = 0; i < capacity; i++) {
-            buckets[i] = new ArrayList<>();
+            lists[i] = new ArrayList<>();
         }
     }
 
@@ -35,7 +32,7 @@ public class HashTable<E> implements Collection<E> {
             return 0;
         }
 
-        return Math.abs(object.hashCode()) % buckets.length;
+        return Math.abs(object.hashCode()) % lists.length;
     }
 
     @Override
@@ -50,66 +47,57 @@ public class HashTable<E> implements Collection<E> {
 
     @Override
     public boolean contains(Object object) {
-        if (object == null) {
-            ArrayList<E> bucket = buckets[0];
-            return bucket.contains(null);
-        }
-
-        ArrayList<E> bucket = buckets[getIndex(object)];
-        return bucket.contains(object);
+        ArrayList<E> list = lists[getIndex(object)];
+        return list.contains(object);
     }
 
     @Override
     public Iterator<E> iterator() {
         return new Iterator<>() {
-            private int bucketIndex = 0;
-            private int elementIndex = 0;
-            private int expectedModificationsCount = modificationsCount;
+            private int currentIndex;
+            private final int expectedModificationsCount = modificationsCount;
+            private int elementsVisited;
 
             @Override
             public boolean hasNext() {
-                while (bucketIndex < buckets.length && elementIndex >= buckets[bucketIndex].size()) {
-                    bucketIndex++;
-                    elementIndex = 0;
+                int localCurrentIndex = currentIndex;
+                int localElementsVisited = elementsVisited;
+
+                while (localCurrentIndex < lists.length && localElementsVisited >= lists[localCurrentIndex].size()) {
+                    localCurrentIndex++;
+                    localElementsVisited = 0;
                 }
 
-                return bucketIndex < buckets.length;
-            }
-
-            private void checkModification() {
-                if (modificationsCount != expectedModificationsCount) {
-                    throw new ConcurrentModificationException("Список был изменен");
-                }
+                return localCurrentIndex < lists.length;
             }
 
             @Override
             public E next() {
-                checkModification();
+                if (modificationsCount != expectedModificationsCount) {
+                    throw new ConcurrentModificationException("Список был изменен");
+                }
 
                 if (!hasNext()) {
                     throw new NoSuchElementException("Нет больше элементов в списке");
                 }
 
-                int currentIndex = elementIndex;
-                elementIndex++;
-                return buckets[bucketIndex].get(currentIndex);
+                while (currentIndex < lists.length && elementsVisited >= lists[currentIndex].size()) {
+                    currentIndex++;
+                    elementsVisited = 0;
+                }
+
+                E nextElement = lists[currentIndex].get(elementsVisited);
+                elementsVisited++;
+                return nextElement;
             }
 
             @Override
             public void remove() {
-                checkModification();
-
-                if (elementIndex == 0) {
-                    throw new IllegalStateException("Метод remove() может быть вызван только один раз после каждого вызова next()");
-                }
-
-                buckets[bucketIndex].remove(elementIndex - 1);
-                elementIndex--;
-                size--;
-                expectedModificationsCount = modificationsCount;
+                throw new UnsupportedOperationException("Метод remove() не поддерживается");
             }
         };
     }
+
 
     @Override
     public Object[] toArray() {
@@ -127,61 +115,68 @@ public class HashTable<E> implements Collection<E> {
     @Override
     public <T> T[] toArray(T[] array) {
         if (array.length < size) {
-            array = Arrays.copyOf(array, size);
-        } else if (array.length > size) {
-            Arrays.fill(array, size, array.length, null);
+            // noinspection unchecked
+            return (T[]) Arrays.copyOf(this.lists, size, array.getClass());
         }
 
         int i = 0;
 
         for (E element : this) {
-            // noinspection unchecked
-            array[i] = (T) element;
+            ((Object[]) array)[i] = element;
             i++;
+        }
+
+        if (i < array.length) {
+            array[i] = null;
         }
 
         return array;
     }
 
+
+    private void rehash() {
+        int newCapacity = lists.length * 2;
+        // noinspection unchecked
+        ArrayList<E>[] newLists = new ArrayList[newCapacity];
+
+        for (int i = 0; i < newCapacity; i++) {
+            newLists[i] = new ArrayList<>();
+        }
+
+        for (ArrayList<E> list : lists) {
+            for (E element : list) {
+                int index = (element == null) ? 0 : Math.abs(element.hashCode()) % newCapacity;
+                newLists[index].add(element);
+            }
+        }
+
+        lists = newLists;
+    }
+
     @Override
     public boolean add(E element) {
-        if (element == null) {
-            ArrayList<E> bucket = buckets[0];
-            bucket.add(null);
-            size++;
-            modificationsCount++;
-            return true;
+        int index = (element == null) ? 0 : Math.abs(element.hashCode()) % lists.length;
+
+        ArrayList<E> list = lists[index];
+        list.add(element);
+        size++;
+        modificationsCount++;
+
+        if ((double) size / lists.length > LOAD_FACTOR) {
+            rehash();
         }
 
-        ArrayList<E> bucket = buckets[getIndex(element)];
-
-        if (bucket.add(element)) {
-            size++;
-            modificationsCount++;
-            return true;
-        }
-
-        return false;
+        return true;
     }
 
     @Override
     public boolean remove(Object object) {
-        if (object == null) {
-            ArrayList<E> bucket = buckets[0];
+        ArrayList<E> list = lists[getIndex(object)];
 
-            if (bucket.remove(null)) {
-                size--;
-                modificationsCount++;
-                return true;
-            }
-        } else {
-            ArrayList<E> bucket = buckets[getIndex(object)];
-
-            if (bucket.remove(object)) {
-                size--;
-                modificationsCount++;
-                return true;
-            }
+        if (list.remove(object)) {
+            size--;
+            modificationsCount++;
+            return true;
         }
 
         return false;
@@ -197,8 +192,8 @@ public class HashTable<E> implements Collection<E> {
     public boolean containsAll(Collection<?> collection) {
         checkCollectionIsNull(collection);
 
-        for (Object o : collection) {
-            if (!contains(o)) {
+        for (Object object : collection) {
+            if (!contains(object)) {
                 return false;
             }
         }
@@ -210,15 +205,11 @@ public class HashTable<E> implements Collection<E> {
     public boolean addAll(Collection<? extends E> collection) {
         checkCollectionIsNull(collection);
 
-        boolean isModified = false;
-
         for (E element : collection) {
-            if (add(element)) {
-                isModified = true;
-            }
+            add(element);
         }
 
-        return isModified;
+        return true;
     }
 
     @Override
@@ -231,8 +222,8 @@ public class HashTable<E> implements Collection<E> {
 
         boolean isModified = false;
 
-        for (Object o : collection) {
-            if (remove(o)) {
+        for (Object element : collection) {
+            while (remove(element)) {
                 isModified = true;
             }
         }
@@ -246,14 +237,12 @@ public class HashTable<E> implements Collection<E> {
 
         boolean isModified = false;
 
-        for (ArrayList<E> bucket : buckets) {
-            Iterator<E> iterator = bucket.iterator();
-
-            while (iterator.hasNext()) {
-                E element = iterator.next();
+        for (ArrayList<E> list : lists) {
+            for (int i = list.size() - 1; i >= 0; i--) {
+                E element = list.get(i);
 
                 if (!collection.contains(element)) {
-                    iterator.remove();
+                    list.remove(i);
                     size--;
                     modificationsCount++;
                     isModified = true;
@@ -266,8 +255,12 @@ public class HashTable<E> implements Collection<E> {
 
     @Override
     public void clear() {
-        for (ArrayList<E> bucket : buckets) {
-            bucket.clear();
+        if (size == 0) {
+            return;
+        }
+
+        for (ArrayList<E> list : lists) {
+            list.clear();
         }
 
         size = 0;
@@ -279,8 +272,8 @@ public class HashTable<E> implements Collection<E> {
         StringBuilder stringBuilder = new StringBuilder();
         stringBuilder.append('[');
 
-        for (ArrayList<E> bucket : buckets) {
-            stringBuilder.append(bucket.toString()).append(", ");
+        for (ArrayList<E> list : lists) {
+            stringBuilder.append(list).append(", ");
         }
 
         stringBuilder.setLength(stringBuilder.length() - 2);

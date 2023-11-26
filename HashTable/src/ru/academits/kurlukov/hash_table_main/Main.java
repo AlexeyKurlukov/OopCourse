@@ -12,7 +12,7 @@ public class Main {
         System.out.println("Размер хэш-таблицы: " + hashTable.size());
 
         hashTable.add(null);
-        hashTable.add(0);
+        hashTable.add(null);
         hashTable.add(0);
         hashTable.add(555);
         hashTable.add(11);
@@ -20,12 +20,16 @@ public class Main {
         hashTable.add(44444);
         hashTable.add(-10);
         hashTable.add(-333);
+        hashTable.add(null);
+        hashTable.add(null);
         hashTable.add(-5555);
         hashTable.add(12);
-        hashTable.add(null);
         hashTable.add(113);
         hashTable.add(88);
         hashTable.add(88);
+        hashTable.add(null);
+        hashTable.add(null);
+
         System.out.println("Хэш-таблица после добавления элементов: " + hashTable);
         System.out.println("Размер хэш-таблицы: " + hashTable.size());
 
@@ -39,11 +43,14 @@ public class Main {
         System.out.println("Размер хэш-таблицы: " + hashTable.size());
         System.out.println();
 
+        Integer[] array = new Integer[5];
+        array = hashTable.toArray(array);
+        System.out.println("Массив, полученный из хэш-таблицы: " + Arrays.toString(array));
+
         System.out.println("Преобразование хэш-таблицы в массив: " + Arrays.toString(hashTable.toArray()));
         System.out.println();
 
-        List<Integer> list;
-        list = Arrays.asList(1, 2, 3, 4, 5, 6);
+        List<Integer> list = Arrays.asList(1, 2, 3, 4, 5, 6);
         System.out.println("Исходный список: " + list);
 
         System.out.println("Элементы из списка " + list + " добавлены в хэш-таблицу: " + hashTable.addAll(list));

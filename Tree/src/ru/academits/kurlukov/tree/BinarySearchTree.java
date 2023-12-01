@@ -1,204 +1,288 @@
 package ru.academits.kurlukov.tree;
 
-import java.util.LinkedList;
-import java.util.Queue;
-import java.util.Stack;
+import java.util.*;
 import java.util.function.Consumer;
 
-public class BinarySearchTree<E extends Comparable<E>> {
-    private class Node {
-        private E data;
-        private Node left;
-        private Node right;
-
-        public Node(E data) {
-            this.data = data;
-            left = null;
-            right = null;
-        }
-    }
-
-    private Node root;
+public class BinarySearchTree<E> {
+    private Node<E> root;
     private int size;
+    private Comparator<E> comparator;
 
     public BinarySearchTree() {
-        root = null;
     }
 
-    private void validateNotNull(E value) {
-        if (value == null) {
-            throw new IllegalArgumentException("Значение не может быть null");
+    public BinarySearchTree(Comparator<E> comparator) {
+        this.comparator = comparator;
+    }
+
+    private int compareData(E data1, E data2) {
+        if (comparator != null) {
+            return comparator.compare(data1, data2);
+        } else {
+            // noinspection unchecked
+            return ((Comparable<? super E>) data1).compareTo(data2);
         }
     }
 
-    public void insert(E value) {
-        validateNotNull(value);
-
-        Node newNode = new Node(value);
-
+    public void insert(E data) {
         if (root == null) {
-            root = newNode;
+            root = new Node<>(data);
             size++;
             return;
         }
 
-        Node currentNode = root;
-        Node parent = null;
+        Node<E> currentNode = root;
+        Node<E> parentNode;
 
-        while (currentNode != null) {
-            parent = currentNode;
-            int compareResult = value.compareTo(currentNode.data);
-
-            if (compareResult < 0) {
-                currentNode = currentNode.left;
-            } else if (compareResult > 0) {
-                currentNode = currentNode.right;
+        while (true) {
+            if (data == null) {
+                if (currentNode.getNullBranch() == null) {
+                    currentNode.setNullBranch(new Node<>(null));
+                    size++;
+                    return;
+                }
             } else {
-                return;
+                int compareResult = compareData(data, currentNode.getData());
+                parentNode = currentNode;
+
+                if (compareResult < 0) {
+                    currentNode = currentNode.getLeft();
+
+                    if (currentNode == null) {
+                        parentNode.setLeft(new Node<>(data));
+                        size++;
+                        return;
+                    }
+                } else {
+                    currentNode = currentNode.getRight();
+
+                    if (currentNode == null) {
+                        parentNode.setRight(new Node<>(data));
+                        size++;
+                        return;
+                    }
+                }
             }
         }
-
-        if (value.compareTo(parent.data) < 0) {
-            parent.left = newNode;
-        } else {
-            parent.right = newNode;
-        }
-
-        size++;
     }
 
-    public boolean search(E value) {
-        validateNotNull(value);
-
-        Node currentNode = root;
+    public boolean contains(E data) {
+        Node<E> currentNode = root;
 
         while (currentNode != null) {
-            int compareResult = value.compareTo(currentNode.data);
+            if (data == null) {
+                if (currentNode.getData() == null) {
+                    return true;
+                }
 
-            if (compareResult < 0) {
-                currentNode = currentNode.left;
-            } else if (compareResult > 0) {
-                currentNode = currentNode.right;
+                currentNode = currentNode.getNullBranch();
             } else {
-                return true;
+                int compareResult = compareData(data, currentNode.getData());
+
+                if (compareResult < 0) {
+                    currentNode = currentNode.getLeft();
+                } else if (compareResult > 0) {
+                    currentNode = currentNode.getRight();
+                } else {
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    public void remove(E value) {
-        root = removeNode(root, value);
-        size--;
+    public boolean remove(E data) {
+        if (data == null) {
+            if (root.getNullBranch() != null) {
+                root.setNullBranch(null);
+                size--;
+                return true;
+            }
+
+            return false;
+        }
+
+        if (root == null) {
+            return false;
+        }
+
+        Node<E> currentNode = root;
+        Node<E> parentNode = null;
+        boolean isLeftChild = false;
+
+        while (currentNode != null) {
+            int compareResult = compareData(data, currentNode.getData());
+
+            if (compareResult == 0) {
+                if (currentNode.getLeft() == null && currentNode.getRight() == null) {
+                    if (parentNode == null) {
+                        root = null;
+                    } else if (isLeftChild) {
+                        parentNode.setLeft(null);
+                    } else {
+                        parentNode.setRight(null);
+                    }
+
+                    size--;
+                    return true;
+                }
+
+                if (currentNode.getRight() == null) {
+                    if (parentNode == null) {
+                        root = currentNode.getLeft();
+                    } else if (isLeftChild) {
+                        parentNode.setLeft(currentNode.getLeft());
+                    } else {
+                        parentNode.setRight(currentNode.getLeft());
+                    }
+
+                    size--;
+                    return true;
+                }
+
+                if (currentNode.getLeft() == null) {
+                    if (parentNode == null) {
+                        root = currentNode.getRight();
+                    } else if (isLeftChild) {
+                        parentNode.setLeft(currentNode.getRight());
+                    } else {
+                        parentNode.setRight(currentNode.getRight());
+                    }
+
+                    size--;
+                    return true;
+                }
+
+                removeWithTwoChildren(currentNode);
+                size--;
+                return true;
+            }
+
+            if (compareResult < 0) {
+                parentNode = currentNode;
+                currentNode = currentNode.getLeft();
+                isLeftChild = true;
+            } else {
+                parentNode = currentNode;
+                currentNode = currentNode.getRight();
+                isLeftChild = false;
+            }
+        }
+
+        return false;
     }
 
-    private Node removeNode(Node currentNode, E value) {
-        validateNotNull(value);
+    public void removeWithTwoChildren(Node<E> node) {
+        Node<E> minRightNode = findMinNode(node.getRight());
 
-        if (currentNode == null) {
+        if (minRightNode == null) {
+            node.setData(node.getRight().getData());
+            node.setRight(node.getRight().getRight());
+        } else {
+            node.setData(minRightNode.getData());
+            node.setRight(removeMinNode(node.getRight()));
+        }
+    }
+
+    private Node<E> findMinNode(Node<E> node) {
+        if (node == null) {
             return null;
         }
 
-        int compareResult = value.compareTo(currentNode.data);
-
-        if (compareResult < 0) {
-            currentNode.left = removeNode(currentNode.left, value);
-            return currentNode;
+        if (node.getLeft() == null) {
+            return node;
         }
 
-        if (compareResult > 0) {
-            currentNode.right = removeNode(currentNode.right, value);
-            return currentNode;
-        }
+        return findMinNode(node.getLeft());
+    }
 
-        if (currentNode.left == null && currentNode.right == null) {
+    private Node<E> removeMinNode(Node<E> node) {
+        if (node == null) {
             return null;
         }
 
-        if (currentNode.left == null) {
-            return currentNode.right;
+        if (node.getLeft() != null) {
+            node.setLeft(removeMinNode(node.getLeft()));
+            return node;
         }
 
-        if (currentNode.right == null) {
-            return currentNode.left;
-        }
-
-        E minValue = findMinValue(currentNode.right);
-        currentNode.data = minValue;
-        currentNode.right = removeNode(currentNode.right, minValue);
-        return currentNode;
-    }
-
-    private E findMinValue(Node currentNode) {
-        while (currentNode.left != null) {
-            currentNode = currentNode.left;
-        }
-
-        return currentNode.data;
+        return node.getRight();
     }
 
     public int size() {
         return size;
     }
 
-    public void traverseBreadthFirst(Consumer<E> processNode) {
+    public void traverseInBreadth(Consumer<E> consumer) {
         if (root == null) {
             return;
         }
 
-        Queue<Node> queue = new LinkedList<>();
+        Queue<Node<E>> queue = new LinkedList<>();
         queue.add(root);
 
         while (!queue.isEmpty()) {
-            Node currentNode = queue.poll();
+            Node<E> currentNode = queue.poll();
 
-            processNode.accept(currentNode.data);
+            consumer.accept(currentNode.getData());
 
-            if (currentNode.left != null) {
-                queue.add(currentNode.left);
+            if (currentNode.getLeft() != null) {
+                queue.add(currentNode.getLeft());
             }
 
-            if (currentNode.right != null) {
-                queue.add(currentNode.right);
+            if (currentNode.getRight() != null) {
+                queue.add(currentNode.getRight());
             }
         }
     }
 
-    public void traverseInDepthNonRecursive() {
+    public void traverseInDepth(Consumer<E> consumer) {
         if (root == null) {
             return;
         }
 
-        Stack<Node> stack = new Stack<>();
-        stack.push(root);
+        Deque<Node<E>> deque = new LinkedList<>();
+        deque.push(root);
 
-        while (!stack.isEmpty()) {
-            Node currentNode = stack.pop();
+        while (!deque.isEmpty()) {
+            Node<E> currentNode = deque.pop();
 
-            System.out.println(currentNode.data);
+            consumer.accept(currentNode.getData());
 
-            if (currentNode.right != null) {
-                stack.push(currentNode.right);
+            if (currentNode.getRight() != null) {
+                deque.push(currentNode.getRight());
             }
 
-            if (currentNode.left != null) {
-                stack.push(currentNode.left);
+            if (currentNode.getLeft() != null) {
+                deque.push(currentNode.getLeft());
             }
         }
     }
 
-    public void traverseInDepthRecursive() {
-        traverseInDepthRecursive(root);
+    public void traverseInDepthRecursive(Consumer<E> consumer) {
+        traverseInDepthRecursive(root, consumer);
     }
 
-    private void traverseInDepthRecursive(Node currentNode) {
+    private void traverseInDepthRecursive(Node<E> currentNode, Consumer<E> consumer) {
         if (currentNode == null) {
             return;
         }
 
-        System.out.println(currentNode.data);
+        consumer.accept(currentNode.getData());
 
-        traverseInDepthRecursive(currentNode.left);
-        traverseInDepthRecursive(currentNode.right);
+        traverseInDepthRecursive(currentNode.getLeft(), consumer);
+        traverseInDepthRecursive(currentNode.getRight(), consumer);
+    }
+
+    @Override
+    public String toString() {
+        if (root == null) {
+            return "Бинарное дерево пусто";
+        }
+
+        return "BinarySearchTree {" +
+                "root = " + root +
+                '}';
     }
 }

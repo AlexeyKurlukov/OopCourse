@@ -55,6 +55,7 @@ public class Main {
 
         System.out.println("Элементы из списка " + list + " добавлены в хэш-таблицу: " + hashTable.addAll(list));
         System.out.println(hashTable);
+        System.out.println("Размер хэш-таблицы: " + hashTable.size());
         System.out.println();
 
         System.out.println("Хэш-таблица содержит все элементы из списка " + list + ": " + hashTable.containsAll(list));
@@ -68,6 +69,7 @@ public class Main {
 
         System.out.println("Все элементы, кроме элементов из коллекции " + list + ", были удалены из хэш-таблицы: " + hashTable.retainAll(list));
         System.out.println(hashTable);
+        System.out.println("Размер хэш-таблицы: " + hashTable.size());
         System.out.println();
 
         hashTable.clear();

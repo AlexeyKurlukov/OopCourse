@@ -6,17 +6,20 @@ public class Main {
     public static void main(String[] args) {
         BinarySearchTree<Integer> binarySearchTree = new BinarySearchTree<>();
         binarySearchTree.insert(9);
-        binarySearchTree.insert(10);
-        binarySearchTree.insert(11);
+        binarySearchTree.insert(13);
+        binarySearchTree.insert(null);
+        binarySearchTree.insert(6);
+        binarySearchTree.insert(14);
         binarySearchTree.insert(8);
-        binarySearchTree.insert(7);
+        binarySearchTree.insert(15);
+
         System.out.println(binarySearchTree);
         System.out.println("Размер дерева: " + binarySearchTree.size());
 
-        int element = 15;
-        System.out.println("В дереве есть элемент со значением " + element + ": " + binarySearchTree.contains(element));
+        Object element = null;
+        System.out.println("В дереве есть элемент со значением " + element + ": " + binarySearchTree.contains(null));
 
-        System.out.println("Элемент со значением " + element + " удалён из дерева: " + binarySearchTree.remove(element));
+        System.out.println("Элемент со значением " + element + " удалён из дерева: " + binarySearchTree.remove(null));
         System.out.println(binarySearchTree);
         System.out.println("Размер дерева: " + binarySearchTree.size());
         System.out.println();

@@ -48,12 +48,7 @@ public class HashTable<E> implements Collection<E> {
     @Override
     public boolean contains(Object object) {
         int index = getIndex(object);
-
-        if (lists[index] != null) {
-            return lists[index].contains(object);
-        }
-
-        return false;
+        return lists[index] != null && lists[index].contains(object);
     }
 
     @Override
@@ -109,7 +104,6 @@ public class HashTable<E> implements Collection<E> {
         return array;
     }
 
-
     @Override
     public <T> T[] toArray(T[] array) {
         if (array.length < size) {
@@ -132,8 +126,7 @@ public class HashTable<E> implements Collection<E> {
         return array;
     }
 
-    private void rehash() {
-        int newCapacity = lists.length * 2;
+    private void rehash(int newCapacity) {
         // noinspection unchecked
         ArrayList<E>[] newLists = new ArrayList[newCapacity];
 
@@ -155,11 +148,23 @@ public class HashTable<E> implements Collection<E> {
         }
 
         lists = newLists;
+
+        for (int i = 0; i < lists.length; i++) {
+            if (lists[i] != null && lists[i].isEmpty()) {
+                lists[i] = null;
+            }
+        }
     }
 
     @Override
     public boolean add(E element) {
         int index = getIndex(element);
+
+        if ((double) (size + 1) / lists.length > LOAD_FACTOR) {
+            int newCapacity = lists.length * 2;
+            rehash(newCapacity);
+            index = getIndex(element);
+        }
 
         if (lists[index] == null) {
             lists[index] = new ArrayList<>();
@@ -168,11 +173,6 @@ public class HashTable<E> implements Collection<E> {
         lists[index].add(element);
         size++;
         modificationsCount++;
-
-        if ((double) size / lists.length > LOAD_FACTOR) {
-            rehash();
-        }
-
         return true;
     }
 
@@ -216,6 +216,17 @@ public class HashTable<E> implements Collection<E> {
             return false;
         }
 
+        int totalSize = size + collection.size();
+        double updatedLoadFactor = (double) totalSize / lists.length;
+
+        if (updatedLoadFactor > LOAD_FACTOR) {
+            int newCapacity = Math.max((int) (totalSize / LOAD_FACTOR), lists.length);
+
+            if (newCapacity > lists.length) {
+                rehash(newCapacity);
+            }
+        }
+
         for (E element : collection) {
             add(element);
         }
@@ -252,7 +263,7 @@ public class HashTable<E> implements Collection<E> {
             if (list != null) {
                 int initialListSize = list.size();
                 list.retainAll(collection);
-                size -= (initialListSize - list.size());
+                size -= initialListSize - list.size();
                 isModified = isModified || (list.size() < initialListSize);
             }
         }

@@ -16,10 +16,10 @@ public class Main {
         System.out.println(binarySearchTree);
         System.out.println("Размер дерева: " + binarySearchTree.size());
 
-        Object element = null;
-        System.out.println("В дереве есть элемент со значением " + element + ": " + binarySearchTree.contains(null));
+        int element = 9;
+        System.out.println("В дереве есть элемент со значением " + element + ": " + binarySearchTree.contains(element));
 
-        System.out.println("Элемент со значением " + element + " удалён из дерева: " + binarySearchTree.remove(null));
+        System.out.println("Элемент со значением " + element + " удалён из дерева: " + binarySearchTree.remove(element));
         System.out.println(binarySearchTree);
         System.out.println("Размер дерева: " + binarySearchTree.size());
         System.out.println();

@@ -36,8 +36,8 @@ public class Main {
         int element1 = 88;
         System.out.println("Хэш-таблица содержит элемент " + element1 + ": " + hashTable.contains(element1));
 
-        Object element2 = null;
-        System.out.println("Из хэш-таблицы был удалён элемент " + element2 + ": " + hashTable.remove(null));
+        int element2 = 555;
+        System.out.println("Из хэш-таблицы был удалён элемент " + element2 + ": " + hashTable.remove(element2));
         System.out.println(hashTable);
 
         System.out.println("Размер хэш-таблицы: " + hashTable.size());

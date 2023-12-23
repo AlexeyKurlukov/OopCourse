@@ -130,30 +130,21 @@ public class HashTable<E> implements Collection<E> {
         // noinspection unchecked
         ArrayList<E>[] newLists = new ArrayList[newCapacity];
 
-        for (int i = 0; i < newCapacity; i++) {
-            newLists[i] = new ArrayList<>();
-        }
-
         for (ArrayList<E> list : lists) {
             if (list != null) {
                 for (E element : list) {
-                    if (element != null) {
-                        int index = getIndex(element, newCapacity);
-                        newLists[index].add(element);
-                    } else {
-                        newLists[0].add(null);
+                    int index = getIndex(element, newCapacity);
+
+                    if (newLists[index] == null) {
+                        newLists[index] = new ArrayList<>();
                     }
+
+                    newLists[index].add(element);
                 }
             }
         }
 
         lists = newLists;
-
-        for (int i = 0; i < lists.length; i++) {
-            if (lists[i] != null && lists[i].isEmpty()) {
-                lists[i] = null;
-            }
-        }
     }
 
     @Override
@@ -220,7 +211,7 @@ public class HashTable<E> implements Collection<E> {
         double updatedLoadFactor = (double) totalSize / lists.length;
 
         if (updatedLoadFactor > LOAD_FACTOR) {
-            int newCapacity = Math.max((int) (totalSize / LOAD_FACTOR), lists.length);
+            int newCapacity = (int) (totalSize / LOAD_FACTOR);
 
             if (newCapacity > lists.length) {
                 rehash(newCapacity);

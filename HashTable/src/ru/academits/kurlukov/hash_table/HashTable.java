@@ -74,7 +74,7 @@ public class HashTable<E> implements Collection<E> {
                     throw new NoSuchElementException("Нет больше элементов в списке");
                 }
 
-                while (currentListIndex < lists.length && (lists[currentListIndex] == null || currentElementIndex >= lists[currentListIndex].size())) {
+                while (lists[currentListIndex] == null || currentElementIndex >= lists[currentListIndex].size()) {
                     currentListIndex++;
                     currentElementIndex = 0;
                 }
@@ -149,13 +149,12 @@ public class HashTable<E> implements Collection<E> {
 
     @Override
     public boolean add(E element) {
-        int index = getIndex(element);
-
         if ((double) (size + 1) / lists.length > LOAD_FACTOR) {
             int newCapacity = lists.length * 2;
             rehash(newCapacity);
-            index = getIndex(element);
         }
+
+        int index = getIndex(element);
 
         if (lists[index] == null) {
             lists[index] = new ArrayList<>();
@@ -207,15 +206,12 @@ public class HashTable<E> implements Collection<E> {
             return false;
         }
 
-        int totalSize = size + collection.size();
-        double updatedLoadFactor = (double) totalSize / lists.length;
+        int newSize = size + collection.size();
+        double updatedLoadFactor = (double) newSize / lists.length;
 
         if (updatedLoadFactor > LOAD_FACTOR) {
-            int newCapacity = (int) (totalSize / LOAD_FACTOR);
-
-            if (newCapacity > lists.length) {
-                rehash(newCapacity);
-            }
+            int newCapacity = (int) (newSize / LOAD_FACTOR);
+            rehash(newCapacity);
         }
 
         for (E element : collection) {

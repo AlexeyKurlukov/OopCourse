@@ -1,7 +1,7 @@
-# Compiled class file.txt
+# Compiled class input.txt
 *.class
 
-# Log file.txt
+# Log input.txt
 *.log
 
 # BlueJ files
